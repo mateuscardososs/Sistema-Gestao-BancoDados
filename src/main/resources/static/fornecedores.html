@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Fornecedores</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to right, #f5f8ff, #e7eef8);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    header {
+      background-color: #0a1f44;
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .container {
+      margin-top: 40px;
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    }
+    .form-label {
+      font-weight: 600;
+    }
+    .btn-primary {
+      background-color: #19398a;
+      border-color: #19398a;
+      font-weight: 600;
+      padding: 10px 20px;
+    }
+    .btn-primary:hover {
+      background-color: #0a1f44;
+      border-color: #0a1f44;
+    }
+    .table th {
+      background-color: #19398a;
+      color: white;
+    }
+    .table td, .table th {
+      vertical-align: middle;
+    }
+    h4 {
+      margin-top: 40px;
+      font-weight: bold;
+      color: #19398a;
+    }
+  </style>
+</head>
+<body>
+
+<header>Gerenciar Fornecedores</header>
+
+<div class="container">
+  <form id="formFornecedor">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Nome</label>
+        <input type="text" class="form-control" id="nome" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">CNPJ</label>
+        <input type="text" class="form-control" id="cnpj" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Item comprado</label>
+        <input type="text" class="form-control" id="descricao" required>
+      </div>
+    </div>
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary">Cadastrar</button>
+    </div>
+  </form>
+
+  <h4>Lista de Fornecedores</h4>
+  <table class="table table-hover table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>CNPJ</th>
+        <th>Item comprado</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaFornecedores"></tbody>
+  </table>
+</div>
+
+<script>
+  function carregarFornecedores() {
+    fetch('/api/fornecedores')
+      .then(res => res.json())
+      .then(dados => {
+        const tabela = document.getElementById("tabelaFornecedores");
+        tabela.innerHTML = "";
+        dados.forEach(f => {
+          tabela.innerHTML += `
+            <tr>
+              <td>${f.id}</td>
+              <td>${f.nome}</td>
+              <td>${f.cnpj}</td>
+              <td>${f.descricao || '-'}</td>
+              <td><button onclick="deletarFornecedor(${f.id})" class="btn btn-sm btn-danger">Excluir</button></td>
+            </tr>
+          `;
+        });
+      });
+  }
+
+  function deletarFornecedor(id) {
+    fetch(`/api/fornecedores/${id}`, { method: 'DELETE' })
+      .then(() => carregarFornecedores());
+  }
+
+  document.getElementById("formFornecedor").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const nome = document.getElementById("nome").value;
+    const cnpj = document.getElementById("cnpj").value;
+    const descricao = document.getElementById("descricao").value;
+
+    fetch("/api/fornecedores", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, cnpj, descricao })
+    }).then(() => {
+      this.reset();
+      carregarFornecedores();
+    });
+  });
+
+  carregarFornecedores();
+</script>
+
+</body>
+</html>

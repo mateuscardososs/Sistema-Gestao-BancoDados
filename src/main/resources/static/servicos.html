@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Serviços - AD Balanças</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7fafc;
+      margin: 0;
+      padding: 0;
+      color: #1E3A8A;
+    }
+    header {
+      background-color: #0A1F44;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0A1F44;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    textarea {
+      resize: vertical;
+      height: 80px;
+    }
+    button {
+      background-color: #1E3A8A;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0A1F44;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #e5e7eb;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<header>Serviços - AD Balanças</header>
+
+<div class="container">
+  <h2>Cadastro de Serviço</h2>
+  <input type="date" id="data" placeholder="Data">
+  <input type="number" step="0.01" id="orcamento" placeholder="Orçamento (ex: 1500.00)">
+  <textarea id="relatorio" placeholder="Relatório do serviço (opcional)"></textarea>
+  <button onclick="cadastrar()">Cadastrar</button>
+
+  <h2>Lista de Serviços</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Data</th>
+        <th>Orçamento (R$)</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+  </table>
+</div>
+
+<script>
+  function formatarData(dataString) {
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR');
+  }
+
+  function listar() {
+    $.get("/api/servicos", function(data) {
+      $("#tabela").empty();
+      data.forEach(s => {
+        $("#tabela").append(`
+          <tr>
+            <td>${s.idServico}</td>
+            <td>${formatarData(s.data)}</td>
+            <td>${parseFloat(s.orcamento).toFixed(2)}</td>
+            <td><button onclick="excluir(${s.idServico})">Excluir</button></td>
+          </tr>
+        `);
+      });
+    });
+  }
+
+  function cadastrar() {
+    const serv = {
+      data: $("#data").val(),
+      orcamento: $("#orcamento").val(),
+      relatorio: $("#relatorio").val()
+    };
+
+    $.ajax({
+      url: "/api/servicos",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(serv),
+      success: function () {
+        $("input, textarea").val("");
+        listar();
+      }
+    });
+  }
+
+  function excluir(id) {
+    $.ajax({
+      url: `/api/servicos/${id}`,
+      type: "DELETE",
+      success: listar
+    });
+  }
+
+  $(document).ready(listar);
+</script>
+
+</body>
+</html>

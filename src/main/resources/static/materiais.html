@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Materiais - AD Balanças</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      color: #1E3A8A;
+    }
+
+    header {
+      background: #0A1F44;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    button {
+      background-color: #1E3A8A;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0A1F44;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+
+    th {
+      background: #1E3A8A;
+      color: white;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<header>Materiais - AD Balanças</header>
+<div class="container">
+  <h2>Cadastro de Material</h2>
+  <input type="date" id="data" placeholder="Data">
+  <input type="text" id="nome" placeholder="Nome do Material">
+  <input type="text" id="tipo" placeholder="Tipo">
+  <input type="text" id="modelo" placeholder="Modelo">
+  <input type="text" id="marcaFabricante" placeholder="Marca/Fabricante">
+  <input type="text" id="localizacao" placeholder="Localização">
+  <button onclick="cadastrar()">Cadastrar</button>
+
+  <h2>Lista de Materiais</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Tipo</th>
+        <th>Modelo</th>
+        <th>Marca</th>
+        <th>Data</th>
+        <th>Localização</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+  </table>
+</div>
+
+<script>
+  function listar() {
+    $.get("/api/materiais", function(data) {
+      $("#tabela").empty();
+      data.forEach(m => {
+        $("#tabela").append(`
+          <tr>
+            <td>${m.idMaterial}</td>
+            <td>${m.nome}</td>
+            <td>${m.tipo}</td>
+            <td>${m.modelo}</td>
+            <td>${m.marcaFabricante}</td>
+            <td>${m.data}</td>
+            <td>${m.localizacao || ''}</td>
+            <td><button onclick="excluir(${m.idMaterial})">Excluir</button></td>
+          </tr>
+        `);
+      });
+    });
+  }
+
+  function cadastrar() {
+    const material = {
+      data: document.getElementById("data").value,
+      nome: document.getElementById("nome").value,
+      tipo: document.getElementById("tipo").value,
+      modelo: document.getElementById("modelo").value,
+      marcaFabricante: document.getElementById("marcaFabricante").value,
+      localizacao: document.getElementById("localizacao").value
+    };
+
+    $.ajax({
+      url: "/api/materiais",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(material),
+      success: () => {
+        $("input").val("");
+        listar();
+      },
+      error: (err) => {
+        console.error("Erro ao cadastrar:", err);
+        alert("Erro ao cadastrar material. Verifique o console para mais detalhes.");
+      }
+    });
+  }
+
+  function excluir(id) {
+    $.ajax({
+      url: `/api/materiais/${id}`,
+      type: "DELETE",
+      success: listar
+    });
+  }
+
+  $(document).ready(listar);
+</script>
+</body>
+</html>

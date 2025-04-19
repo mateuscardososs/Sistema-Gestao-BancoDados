@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clientes - AD Balanças</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f5f6fa;
+    }
+    .header {
+      background-color: #0a2342;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    .card-custom {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    .btn-primary {
+      background-color: #223c88;
+      border: none;
+    }
+    .btn-danger {
+      background-color: #d90429;
+      border: none;
+    }
+    th {
+      background-color: #223c88;
+      color: white;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #edf2f7;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">Clientes - AD Balanças</div>
+
+  <div class="container my-4">
+    <div class="card card-custom mb-4">
+      <h4 class="mb-4">Cadastro de Cliente</h4>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <input type="text" id="nome" class="form-control" placeholder="Nome" />
+        </div>
+        <div class="col-md-4">
+          <input type="text" id="contato" class="form-control" placeholder="Contato" />
+        </div>
+        <div class="col-md-4">
+          <input type="text" id="endereco" class="form-control" placeholder="Endereço" />
+        </div>
+        <div class="col-md-4">
+          <input type="text" id="cnpj" class="form-control" placeholder="CNPJ (opcional)" />
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-primary w-100" onclick="cadastrarCliente()">Cadastrar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-custom">
+      <h4 class="mb-4">Lista de Clientes</h4>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Contato</th>
+            <th>Endereço</th>
+            <th>CNPJ</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaClientes"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    function carregarClientes() {
+      $.get("/api/clientes", function (clientes) {
+        const tabela = $("#tabelaClientes");
+        tabela.empty();
+        clientes.forEach((c) => {
+          tabela.append(
+            `<tr>
+              <td>${c.id}</td>
+              <td>${c.nome}</td>
+              <td>${c.contato}</td>
+              <td>${c.endereco}</td>
+              <td>${c.cnpj || ''}</td>
+              <td><button class="btn btn-danger btn-sm" onclick="excluirCliente(${c.id})">Excluir</button></td>
+            </tr>`
+          );
+        });
+      });
+    }
+
+    function cadastrarCliente() {
+      const cliente = {
+        nome: $("#nome").val(),
+        contato: $("#contato").val(),
+        endereco: $("#endereco").val(),
+        cnpj: $("#cnpj").val(),
+      };
+      $.ajax({
+        url: "/api/clientes",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(cliente),
+        success: function () {
+          carregarClientes();
+          $("input").val("");
+        },
+      });
+    }
+
+    function excluirCliente(id) {
+      $.ajax({
+        url: `/api/clientes/${id}`,
+        type: "DELETE",
+        success: function () {
+          carregarClientes();
+        },
+      });
+    }
+
+    $(document).ready(() => {
+      carregarClientes();
+    });
+  </script>
+</body>
+</html>

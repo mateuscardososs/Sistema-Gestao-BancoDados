@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedidos de Compra - AD Balanças</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #F3F4F6;
+      margin: 0;
+      color: #1E3A8A;
+    }
+    header {
+      background-color: #0A1F44;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 2em;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      background-color: #1E3A8A;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0A1F44;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<header>Pedidos de Compra - AD Balanças</header>
+
+<div class="container">
+  <h2>Cadastro de Pedido</h2>
+  <input type="date" id="dataCompra" placeholder="Data da Compra">
+  <input type="number" id="idFornecedor" placeholder="ID do Fornecedor (número)">
+  <input type="number" id="quantidade" placeholder="Quantidade (número)">
+  <input type="text" id="valorUnitario" placeholder="Valor Unitário (ex: 20.00)">
+  <input type="text" id="status" placeholder="Status (ex: Aguardando)">
+  <button onclick="cadastrar()">Cadastrar</button>
+
+  <h2>Lista de Pedidos</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Data</th>
+        <th>Fornecedor</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+  </table>
+</div>
+
+<script>
+  function listar() {
+    $.get("/api/pedidos", function(data) {
+      $("#tabela").empty();
+      data.forEach(p => {
+        $("#tabela").append(`
+          <tr>
+            <td>${p.id}</td>
+            <td>${p.dataCompra}</td>
+            <td>${p.idFornecedor}</td>
+            <td>${p.status}</td>
+            <td><button onclick="excluir(${p.id})">Excluir</button></td>
+          </tr>
+        `);
+      });
+    });
+  }
+
+  function cadastrar() {
+    const pedido = {
+      dataCompra: $("#dataCompra").val(),
+      idFornecedor: $("#idFornecedor").val(),
+      quantidade: $("#quantidade").val(),
+      valorUnitario: $("#valorUnitario").val(),
+      status: $("#status").val()
+    };
+
+    $.ajax({
+      url: "/api/pedidos",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(pedido),
+      success: () => {
+        $("input").val("");
+        listar();
+      },
+      error: console.error
+    });
+  }
+
+  function excluir(id) {
+    $.ajax({
+      url: `/api/pedidos/${id}`,
+      type: "DELETE",
+      success: listar
+    });
+  }
+
+  $(document).ready(listar);
+</script>
+
+</body>
+</html>

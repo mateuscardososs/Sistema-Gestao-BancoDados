@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciar Contratos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f5f6fa;
+    }
+    header {
+      background-color: #0b2047;
+      color: white;
+      padding: 1.2rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    .container {
+      margin-top: 30px;
+    }
+    .form-label {
+      font-weight: bold;
+    }
+    .table th {
+      background-color: #102f6e;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<header>Gerenciar Contratos</header>
+
+<div class="container">
+  <form id="formContrato">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Cliente ID</label>
+        <input type="number" class="form-control" id="idCliente" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Serviço ID</label>
+        <input type="number" class="form-control" id="idServico" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Data de Atendimento</label>
+        <input type="date" class="form-control" id="dataAtendimento" required>
+      </div>
+    </div>
+    <div class="mt-3">
+      <button type="submit" class="btn btn-primary">Cadastrar</button>
+    </div>
+  </form>
+
+  <hr class="my-4">
+
+  <h4>Lista de Contratos</h4>
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Serviço</th>
+        <th>Data</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaContratos"></tbody>
+  </table>
+</div>
+
+<script>
+  function carregarContratos() {
+    fetch('/api/contratos')
+      .then(res => res.json())
+      .then(dados => {
+        const tabela = document.getElementById("tabelaContratos");
+        tabela.innerHTML = "";
+        dados.forEach(c => {
+          tabela.innerHTML += `
+            <tr>
+              <td>${c.id}</td>
+              <td>${c.cliente}</td>
+              <td>${c.servico}</td>
+              <td>${c.dataAtendimento}</td>
+              <td><button onclick="deletarContrato(${c.id})" class="btn btn-danger btn-sm">Excluir</button></td>
+            </tr>
+          `;
+        });
+      });
+  }
+
+  function deletarContrato(id) {
+    fetch(`/api/contratos/${id}`, { method: 'DELETE' })
+      .then(() => carregarContratos());
+  }
+
+  document.getElementById("formContrato").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const idCliente = document.getElementById("idCliente").value;
+    const idServico = document.getElementById("idServico").value;
+    const dataAtendimento = document.getElementById("dataAtendimento").value;
+
+    fetch("/api/contratos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idCliente, idServico, dataAtendimento })
+    }).then(() => {
+      this.reset();
+      carregarContratos();
+    });
+  });
+
+  carregarContratos();
+</script>
+
+</body>
+</html>

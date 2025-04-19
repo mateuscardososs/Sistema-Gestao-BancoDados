@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>AD Balanças</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Reset e base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #F3F4F6; /* Cinza claro */
+      color: #1E3A8A;
+    }
+
+    /* Cabeçalho fixo */
+    header {
+      background-color: #0A1F44; /* Azul escuro */
+      color: #FFFFFF;
+      padding: 20px;
+      text-align: center;
+      font-size: 2.5em;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Container principal */
+    .main-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 60px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Botões estilizados */
+    .main-container a {
+      display: block;
+      background-color: #1E3A8A; /* Azul médio */
+      color: #FFFFFF;
+      text-align: center;
+      padding: 20px;
+      text-decoration: none;
+      font-size: 1.2em;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .main-container a:hover {
+      background-color: #0A1F44; /* Azul escuro no hover */
+      transform: translateY(-4px);
+    }
+
+    /* Responsivo */
+    @media (max-width: 600px) {
+      header {
+        font-size: 1.8em;
+      }
+
+      .main-container {
+        padding: 40px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>AD Balanças</header>
+
+  <div class="main-container">
+    <a href="clientes.html">Clientes</a>
+    <a href="execucoes.html">Execuções</a>
+    <a href="materiais.html">Materiais</a>
+    <a href="servicos.html">Serviços</a>
+    <a href="pedidos.html">Pedidos</a>
+    <a href="contratos.html">Contratos</a>
+    <a href="movimentacoes.html">Movimentações</a>
+    <a href="fornecedores.html">Fornecedores</a>
+
+  </div>
+
+</body>
+</html>

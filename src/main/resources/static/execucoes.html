@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Execuções - AD Balanças</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7fafc;
+      margin: 0;
+      padding: 0;
+      color: #1E3A8A;
+    }
+    header {
+      background-color: #0A1F44;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0A1F44;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      background-color: #1E3A8A;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0A1F44;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #e5e7eb;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<header>Execuções - AD Balanças</header>
+
+<div class="container">
+  <h2>Cadastro de Execução</h2>
+  <input type="date" id="dataExecucao" placeholder="Data de Execução">
+  <input type="date" id="dataConclusao" placeholder="Data de Conclusão">
+  <input type="text" id="duracaoEstimada" placeholder="Duração Estimada (ex: 3 dias)">
+  <input type="text" id="status" placeholder="Status (ex: pendente, concluído)">
+  <input type="text" id="idFuncionario" placeholder="ID Funcionário (ex: F001)">
+  <input type="number" id="idServico" placeholder="ID do Serviço (número)">
+  <input type="text" id="empresa" placeholder="Empresa executada">
+  <button onclick="cadastrarExecucao()">Cadastrar</button>
+
+  <h2>Lista de Execuções</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Execução</th>
+        <th>Conclusão</th>
+        <th>Duração</th>
+        <th>Status</th>
+        <th>Funcionário</th>
+        <th>Serviço</th>
+        <th>Empresa</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-execucoes"></tbody>
+  </table>
+</div>
+
+<script>
+  function formatarData(dataString) {
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR');
+  }
+
+  function listarExecucoes() {
+    $.get("/api/execucoes", function(data) {
+      $("#tabela-execucoes").empty();
+      data.forEach(function(e) {
+        $("#tabela-execucoes").append(
+          `<tr>
+            <td>${e.id}</td>
+            <td>${formatarData(e.dataExecucao)}</td>
+            <td>${formatarData(e.dataConclusao)}</td>
+            <td>${e.duracaoEstimada}</td>
+            <td>${e.status}</td>
+            <td>${e.idFuncionario}</td>
+            <td>${e.idServico}</td>
+            <td>${e.empresa || '-'}</td>
+            <td><button onclick="excluirExecucao(${e.id})">Excluir</button></td>
+          </tr>`
+        );
+      });
+    });
+  }
+
+  function cadastrarExecucao() {
+    const execucao = {
+      dataExecucao: $("#dataExecucao").val(),
+      dataConclusao: $("#dataConclusao").val(),
+      duracaoEstimada: $("#duracaoEstimada").val(),
+      status: $("#status").val(),
+      idFuncionario: $("#idFuncionario").val(),
+      idServico: $("#idServico").val(),
+      empresa: $("#empresa").val()
+    };
+
+    $.ajax({
+      url: "/api/execucoes",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(execucao),
+      success: function() {
+        $("input").val("");
+        listarExecucoes();
+      }
+    });
+  }
+
+  function excluirExecucao(id) {
+    $.ajax({
+      url: `/api/execucoes/${id}`,
+      type: "DELETE",
+      success: listarExecucoes
+    });
+  }
+
+  $(document).ready(listarExecucoes);
+</script>
+
+</body>
+</html>
