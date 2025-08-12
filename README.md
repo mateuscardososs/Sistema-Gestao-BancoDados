@@ -59,7 +59,6 @@ Você pode usar o seguinte script SQL no PostgreSQL:
 
 ```sql
 -- Script simplificado do banco de dados
-[COLE AQUI O SCRIPT QUE VOCÊ MANDOU NA MENSAGEM ANTERIOR]
 ```
 
 > Obs: O banco deve ser criado com o mesmo nome, usuário e senha configurados em `application.properties`.
